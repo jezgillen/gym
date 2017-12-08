@@ -72,7 +72,7 @@ class ContactDetector(contactListener):
 
 class LunarLander(gym.Env):
     metadata = {
-        'render.modes': ['human', 'rgb_array'],
+        'render.modes': ['human', 'rgb_array','rgba_array'],
         'video.frames_per_second' : FPS
     }
 
@@ -88,6 +88,7 @@ class LunarLander(gym.Env):
         self.particles = []
 
         self.prev_reward = None
+        self.total_reward = 0
 
         high = np.array([np.inf]*8)  # useful range is -1 .. +1, but spikes can be higher
         self.observation_space = spaces.Box(-high, high)
@@ -128,6 +129,8 @@ class LunarLander(gym.Env):
         W = VIEWPORT_W/SCALE
         H = VIEWPORT_H/SCALE
 
+        self.total_reward = 0
+
         # terrain
         CHUNKS = 11
         height = self.np_random.uniform(0, H/2, size=(CHUNKS+1,) )
@@ -153,8 +156,8 @@ class LunarLander(gym.Env):
                 friction=0.1)
             self.sky_polys.append( [p1, p2, (p2[0],H), (p1[0],H)] )
 
-        self.moon.color1 = (0.0,0.0,0.0)
-        self.moon.color2 = (0.0,0.0,0.0)
+        self.moon.color1 = (0.5,0.5,0.5)
+        self.moon.color2 = (0.5,0.5,0.5)
 
         initial_y = VIEWPORT_H/SCALE
         self.lander = self.world.CreateDynamicBody(
@@ -310,6 +313,7 @@ class LunarLander(gym.Env):
         if not self.lander.awake:
             done   = True
             reward = +100
+        self.total_reward += reward
         return np.array(state), reward, done, {}
 
     def _render(self, mode='human', close=False):
@@ -332,7 +336,7 @@ class LunarLander(gym.Env):
         self._clean_particles(False)
 
         for p in self.sky_polys:
-            self.viewer.draw_polygon(p, color=(0,0,0))
+            self.viewer.draw_polygon(p, color=(0.3,0.3,0.3))
 
         for obj in self.particles + self.drawlist:
             for f in obj.fixtures:
@@ -353,7 +357,16 @@ class LunarLander(gym.Env):
             self.viewer.draw_polyline( [(x, flagy1), (x, flagy2)], color=(1,1,1) )
             self.viewer.draw_polygon( [(x, flagy2), (x, flagy2-10/SCALE), (x+25/SCALE, flagy2-5/SCALE)], color=(0.8,0.8,0) )
 
-        return self.viewer.render(return_rgb_array = mode=='rgb_array')
+        max_height = 13
+        min_height = 0.5
+        normalized_reward = (self.total_reward + 300)/600
+        colour = np.clip(normalized_reward,0,1)
+        height = normalized_reward*12.5 + 0.5
+        l,r,t,b = 19,19.5,height,0.5
+        self.viewer.draw_polygon([(l,b),(l,t),(r,t),(r,b)],
+                color=(1-colour,colour,0.1))
+
+        return self.viewer.render(return_rgb_array = mode=='rgb_array',return_rgba_array = mode=='rgba_array')
 
 class LunarLanderContinuous(LunarLander):
     continuous = True

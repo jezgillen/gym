@@ -77,8 +77,8 @@ class Viewer(object):
     def add_onetime(self, geom):
         self.onetime_geoms.append(geom)
 
-    def render(self, return_rgb_array=False):
-        glClearColor(1,1,1,1)
+    def render(self, return_rgb_array=False,return_rgba_array=False):
+        glClearColor(0,0,0,0)
         self.window.clear()
         self.window.switch_to()
         self.window.dispatch_events()
@@ -89,7 +89,7 @@ class Viewer(object):
             geom.render()
         self.transform.disable()
         arr = None
-        if return_rgb_array:
+        if return_rgb_array or return_rgba_array:
             buffer = pyglet.image.get_buffer_manager().get_color_buffer()
             image_data = buffer.get_image_data()
             arr = np.fromstring(image_data.data, dtype=np.uint8, sep='')
@@ -100,7 +100,11 @@ class Viewer(object):
             # the boundary.) So we use the buffer height/width rather
             # than the requested one.
             arr = arr.reshape(buffer.height, buffer.width, 4)
-            arr = arr[::-1,:,0:3]
+            if(return_rgb_array):
+                arr = arr[::-1,:,0:3]
+            else:
+                arr = arr[::-1,:,0:4]
+
         self.window.flip()
         self.onetime_geoms = []
         return arr

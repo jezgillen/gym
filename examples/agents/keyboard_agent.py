@@ -44,6 +44,7 @@ def rollout(env):
     human_wants_restart = False
     obser = env.reset()
     skip = 0
+    reward = 0
     for t in range(ROLLOUT_TIME):
         if not skip:
             #print("taking action {}".format(human_agent_action))
@@ -53,6 +54,10 @@ def rollout(env):
             skip -= 1
 
         obser, r, done, info = env.step(a)
+        if(done):
+            print(reward)
+            reward = 0
+        reward += r
         env.render()
         if done: break
         if human_wants_restart: break

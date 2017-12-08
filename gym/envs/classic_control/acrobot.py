@@ -127,7 +127,8 @@ class AcrobotEnv(core.Env):
         ns[3] = bound(ns[3], -self.MAX_VEL_2, self.MAX_VEL_2)
         self.state = ns
         terminal = self._terminal()
-        reward = -1. if not terminal else 0.
+        # reward = -1. if not terminal else 0.
+        reward = 1. if bool(-np.cos(ns[0]) - np.cos(ns[1] + ns[0]) > 1.) else 0.
         return (self._get_ob(), reward, terminal, {})
 
     def _get_ob(self):
@@ -135,8 +136,9 @@ class AcrobotEnv(core.Env):
         return np.array([cos(s[0]), np.sin(s[0]), cos(s[1]), sin(s[1]), s[2], s[3]])
 
     def _terminal(self):
-        s = self.state
-        return bool(-np.cos(s[0]) - np.cos(s[1] + s[0]) > 1.)
+        # s = self.state
+        #return bool(-np.cos(s[0]) - np.cos(s[1] + s[0]) > 1.)
+        return False
 
     def _dsdt(self, s_augmented, t):
         m1 = self.LINK_MASS_1
@@ -206,7 +208,7 @@ class AcrobotEnv(core.Env):
             link.add_attr(jtransform)
             link.set_color(0,.8, .8)
             circ = self.viewer.draw_circle(.1)
-            circ.set_color(.8, .8, 0)
+            circ.set_color(.9, .9, 0)
             circ.add_attr(jtransform)
 
         return self.viewer.render(return_rgb_array = mode=='rgb_array')

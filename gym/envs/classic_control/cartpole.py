@@ -114,12 +114,19 @@ class CartPoleEnv(gym.Env):
         if self.viewer is None:
             from gym.envs.classic_control import rendering
             self.viewer = rendering.Viewer(screen_width, screen_height)
+            self.track = \
+                rendering.FilledPolygon([(0,0),(0,carty),(screen_width,carty),(screen_width,0)])
+            self.track.set_color(0.2,0.2,0.2)
+            self.viewer.add_geom(self.track)
+
             l,r,t,b = -cartwidth/2, cartwidth/2, cartheight/2, -cartheight/2
             axleoffset =cartheight/4.0
             cart = rendering.FilledPolygon([(l,b), (l,t), (r,t), (r,b)])
+            cart.set_color(0.2,0.4,0.6)
             self.carttrans = rendering.Transform()
             cart.add_attr(self.carttrans)
             self.viewer.add_geom(cart)
+
             l,r,t,b = -polewidth/2,polewidth/2,polelen-polewidth/2,-polewidth/2
             pole = rendering.FilledPolygon([(l,b), (l,t), (r,t), (r,b)])
             pole.set_color(.8,.6,.4)
@@ -132,9 +139,7 @@ class CartPoleEnv(gym.Env):
             self.axle.add_attr(self.carttrans)
             self.axle.set_color(.5,.5,.8)
             self.viewer.add_geom(self.axle)
-            self.track = rendering.Line((0,carty), (screen_width,carty))
-            self.track.set_color(0,0,0)
-            self.viewer.add_geom(self.track)
+            # self.track = rendering.Line((0,carty), (screen_width,carty))
 
         if self.state is None: return None
 

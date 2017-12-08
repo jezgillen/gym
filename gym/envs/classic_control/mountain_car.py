@@ -84,12 +84,14 @@ class MountainCarEnv(gym.Env):
 
             self.track = rendering.make_polyline(xys)
             self.track.set_linewidth(4)
+            self.track.set_color(1,1,1)
             self.viewer.add_geom(self.track)
 
             clearance = 10
 
             l,r,t,b = -carwidth/2, carwidth/2, carheight, 0
             car = rendering.FilledPolygon([(l,b), (l,t), (r,t), (r,b)])
+            car.set_color(0.2,0.7,0.7)
             car.add_attr(rendering.Transform(translation=(0, clearance)))
             self.cartrans = rendering.Transform()
             car.add_attr(self.cartrans)
@@ -108,6 +110,7 @@ class MountainCarEnv(gym.Env):
             flagy1 = self._height(self.goal_position)*scale
             flagy2 = flagy1 + 50
             flagpole = rendering.Line((flagx, flagy1), (flagx, flagy2))
+            flagpole.set_color(0.7,0.7,0.7)
             self.viewer.add_geom(flagpole)
             flag = rendering.FilledPolygon([(flagx, flagy2), (flagx, flagy2-10), (flagx+25, flagy2-5)])
             flag.set_color(.8,.8,0)
